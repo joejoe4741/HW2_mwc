@@ -35,5 +35,3 @@ jobs:
         tags: |
           ${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-api:latest
           ${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-api:${{ github.sha }}
-        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-api:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/age-prediction-api:buildcache,mode=max
