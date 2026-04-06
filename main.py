@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.staticfiles import StaticFiles
 import cv2
 import numpy as np
 from deepface import DeepFace
@@ -12,9 +13,10 @@ app = FastAPI(
     version="1.1.0"
 )
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def read_root():
-    return {"message": "Age Prediction API Server Status: OK. Send POST request to /predict."}
+    with open("index.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 @app.post("/predict")
 async def predict_age(file: UploadFile = File(...)):
