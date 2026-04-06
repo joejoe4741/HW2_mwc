@@ -28,8 +28,4 @@ COPY . .
 
 EXPOSE 8000
 
-<<<<<<< HEAD
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-=======
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
->>>>>>> 71449c168aa5a52cd0b122d9f07941a8ab0bfc19
