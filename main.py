@@ -7,9 +7,9 @@ import io
 from PIL import Image
 
 app = FastAPI(
-    title="Age Prediction API", 
-    description="MLOps Pipeline - API for Age Prediction using lightweight models",
-    version="1.0.0"
+    title="Age and Gender Prediction API", 
+    description="MLOps Pipeline - API for Age & Gender Prediction using DeepFace",
+    version="1.1.0"
 )
 
 @app.get("/")
@@ -35,19 +35,22 @@ async def predict_age(file: UploadFile = File(...)):
         # 3. Convert RGB to BGR for OpenCV/DeepFace
         img_bgr = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
-        # 4. Predict using DeepFace
+        # 4. Predict using DeepFace (Age and Gender)
         # enforce_detection=False prevents crash if face is not fully visible
-        results = DeepFace.analyze(img_path=img_bgr, actions=['age'], enforce_detection=False)
+        results = DeepFace.analyze(img_path=img_bgr, actions=['age', 'gender'], enforce_detection=False)
         
         # Return results (DeepFace may return a list if multiple faces are found)
         if isinstance(results, list):
             age = results[0].get('age')
+            gender = results[0].get('dominant_gender')
         else:
             age = results.get('age')
+            gender = results.get('dominant_gender')
             
         return JSONResponse(content={
             "filename": file.filename, 
             "predicted_age": age, 
+            "predicted_gender": gender,
             "status": "success"
         })
 
