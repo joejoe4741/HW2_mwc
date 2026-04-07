@@ -1,447 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Identity Predictor</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hair Style Recommender</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  :root {
-    --bg: #040e24;
-    --card: #071630;
-    --card2: #0a1e3d;
-    --blue: #3b82f6;
-    --blue-light: #60a5fa;
-    --cyan: #22d3ee;
-    --green: #4ade80;
-    --text: #e8f0ff;
-    --muted: #6b84b0;
-    --border: rgba(59,130,246,0.22);
-  }
+    :root {
+      --bg: #040e24;
+      --card: #071630;
+      --card2: #0a1e3d;
+      --blue: #3b82f6;
+      --blue-light: #60a5fa;
+      --cyan: #22d3ee;
+      --green: #4ade80;
+      --text: #e8f0ff;
+      --muted: #6b84b0;
+    }
 
-  body {
-    background: var(--bg);
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-    overflow-x: hidden;
-  }
+    body {
+      background: var(--bg);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 70% 60% at 15% 10%, rgba(59,130,246,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 85% 90%, rgba(34,211,238,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(59,130,246,0.06) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 15% 10%, rgba(59, 130, 246, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 85% 90%, rgba(34, 211, 238, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  .layout {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
-    max-width: 1400px;
-    min-height: 100vh;
-    padding: 3rem 4rem;
-    gap: 4rem;
-    align-items: center;
-  }
-
-  /* LEFT PANEL */
-  .left-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(59,130,246,0.12);
-    border: 1px solid rgba(59,130,246,0.3);
-    border-radius: 100px;
-    padding: 0.4rem 1rem;
-    font-size: 0.82rem;
-    color: var(--blue-light);
-    width: fit-content;
-    letter-spacing: 0.3px;
-  }
-
-  .badge::before {
-    content: '';
-    width: 7px; height: 7px;
-    background: var(--cyan);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--cyan);
-  }
-
-  .title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2.8rem, 4vw, 4.2rem);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -1.5px;
-  }
-
-  .title span {
-    background: linear-gradient(135deg, var(--blue-light), var(--cyan));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .desc {
-    color: var(--muted);
-    font-size: 1.1rem;
-    font-weight: 300;
-    line-height: 1.7;
-    max-width: 480px;
-  }
-
-  .stats {
-    display: flex;
-    gap: 2.5rem;
-  }
-
-  .stat-item { display: flex; flex-direction: column; gap: 0.2rem; }
-  .stat-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: var(--blue-light);
-  }
-  .stat-label { font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-  /* RIGHT PANEL */
-  .right-panel {
-    display: flex;
-    flex-direction: column;
-    gap: 1.4rem;
-  }
-
-  .card-label {
-    font-size: 0.8rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: -0.6rem;
-  }
-
-  /* Drop Zone */
-  .drop-zone {
-    border: 2px dashed rgba(59,130,246,0.35);
-    border-radius: 22px;
-    background: var(--card);
-    height: 360px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: border-color 0.25s, background 0.25s, transform 0.2s;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .drop-zone:hover, .drop-zone.drag-over {
-    border-color: var(--blue);
-    background: rgba(59,130,246,0.06);
-    transform: translateY(-2px);
-  }
-
-  .drop-zone img#preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    inset: 0;
-    display: none;
-  }
-
-  .drop-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
-    color: var(--muted);
-    pointer-events: none;
-  }
-
-  .drop-icon {
-    width: 64px; height: 64px;
-    border-radius: 18px;
-    background: rgba(59,130,246,0.1);
-    border: 1px solid rgba(59,130,246,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .drop-text { font-size: 1rem; color: var(--text); font-weight: 400; }
-  .drop-hint { font-size: 0.82rem; opacity: 0.55; }
-
-  input[type="file"] { display: none; }
-
-  /* Button */
-  .btn {
-    width: 100%;
-    padding: 1.1rem;
-    border: none;
-    border-radius: 16px;
-    background: linear-gradient(135deg, var(--blue), #1d4ed8);
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1.05rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
-    letter-spacing: 0.3px;
-    box-shadow: 0 8px 30px rgba(59,130,246,0.3);
-  }
-
-  .btn:hover:not(:disabled) {
-    opacity: 0.92;
-    transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(59,130,246,0.4);
-  }
-  .btn:active:not(:disabled) { transform: translateY(0); }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-
-  .btn .spinner {
-    display: none;
-    width: 20px; height: 20px;
-    border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    margin: 0 auto;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Result */
-  .result {
-    background: var(--card);
-    border: 1px solid rgba(74,222,128,0.25);
-    border-radius: 20px;
-    padding: 1.8rem 2rem;
-    display: none;
-    animation: fadeUp 0.4s ease both;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .result::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(74,222,128,0.07) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .result-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .result-block { display: flex; flex-direction: column; gap: 0.3rem; }
-
-  .result-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 3rem;
-    font-weight: 800;
-    color: var(--green);
-    line-height: 1;
-  }
-
-  .result-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    background: rgba(74,222,128,0.1);
-    border: 1px solid rgba(74,222,128,0.25);
-    border-radius: 100px;
-    padding: 0.35rem 0.9rem;
-    font-size: 0.88rem;
-    color: var(--green);
-    width: fit-content;
-  }
-
-  .result-label {
-    font-size: 0.8rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-top: 0.6rem;
-  }
-
-  /* Error */
-  .error {
-    background: rgba(239,68,68,0.07);
-    border: 1px solid rgba(239,68,68,0.2);
-    border-radius: 14px;
-    padding: 1rem 1.4rem;
-    color: #f87171;
-    font-size: 0.9rem;
-    text-align: center;
-    display: none;
-    animation: fadeUp 0.3s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 900px) {
     .layout {
-      grid-template-columns: 1fr;
-      padding: 2.5rem 2rem;
-      gap: 2.5rem;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 1400px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 3rem 4rem;
+      gap: 4rem;
       align-items: start;
     }
-    .stats { gap: 1.5rem; }
-    .drop-zone { height: 260px; }
-  }
-</style>
-</head>
-<body>
-<div class="layout">
 
-  <!-- LEFT -->
-  <div class="left-panel">
-    <div class="badge">Powered by DeepFace AI</div>
-    <h1 class="title">AI Identity<br><span>Predictor</span></h1>
-    <p class="desc">Upload any face photo and let our deep learning model instantly analyze age and gender with high accuracy.</p>
-    <div class="stats">
-      <div class="stat-item">
-        <span class="stat-num">99%</span>
-        <span class="stat-label">Accuracy</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">&lt;1s</span>
-        <span class="stat-label">Response</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">2</span>
-        <span class="stat-label">Predictions</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT -->
-  <div class="right-panel">
-    <span class="card-label">Upload Image</span>
-
-    <div class="drop-zone" id="dropZone">
-      <img id="preview" alt="preview">
-      <div class="drop-placeholder" id="placeholder">
-        <div class="drop-icon">🖼️</div>
-        <span class="drop-text">Click or drag & drop an image</span>
-        <span class="drop-hint">JPG, PNG, WEBP supported</span>
-      </div>
-    </div>
-
-    <input type="file" id="fileInput" accept="image/*">
-    <div class="error" id="errorBox"></div>
-
-    <button class="btn" id="predictBtn" disabled>
-      <span id="btnText">Predict Age & Gender</span>
-      <div class="spinner" id="spinner"></div>
-    </button>
-
-    <div class="result" id="result">
-      <div class="result-row">
-        <div class="result-block">
-          <div class="result-value" id="resultAge">—</div>
-          <div class="result-tag" id="resultGender">—</div>
-        </div>
-        <div style="font-size:3.5rem; opacity:0.15;">🧬</div>
-      </div>
-      <div class="result-label">Estimated by DeepFace AI</div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const preview = document.getElementById('preview');
-  const placeholder = document.getElementById('placeholder');
-  const predictBtn = document.getElementById('predictBtn');
-  const btnText = document.getElementById('btnText');
-  const spinner = document.getElementById('spinner');
-  const result = document.getElementById('result');
-  const resultAge = document.getElementById('resultAge');
-  const resultGender = document.getElementById('resultGender');
-  const errorBox = document.getElementById('errorBox');
-
-  let selectedFile = null;
-
-  dropZone.addEventListener('click', () => fileInput.click());
-  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) setFile(file);
-  });
-  fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
-
-  function setFile(file) {
-    selectedFile = file;
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
-    placeholder.style.display = 'none';
-    predictBtn.disabled = false;
-    result.style.display = 'none';
-    errorBox.style.display = 'none';
-  }
-
-  predictBtn.addEventListener('click', async () => {
-    if (!selectedFile) return;
-    btnText.style.display = 'none';
-    spinner.style.display = 'block';
-    predictBtn.disabled = true;
-    result.style.display = 'none';
-    errorBox.style.display = 'none';
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
-    try {
-      const res = await fetch('/predict', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Prediction failed');
-
-      resultAge.textContent = `${data.predicted_age} YO`;
-      resultGender.textContent = data.predicted_gender === 'Man' ? '👨 Man' : '👩 Woman';
-      result.style.display = 'block';
-    } catch (err) {
-      errorBox.textContent = err.message;
-      errorBox.style.display = 'block';
-    } finally {
-      btnText.style.display = 'block';
-      spinner.style.display = 'none';
-      predictBtn.disabled = false;
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: sticky;
+      top: 3rem;
     }
-  });
-</script>
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 100px;
+      padding: 0.4rem 1rem;
+      font-size: 0.82rem;
+      color: var(--blue-light);
+      width: fit-content;
+    }
+
+    .badge::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.4rem, 3.5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+    }
+
+    .title span {
+      background: linear-gradient(135deg, var(--blue-light), var(--cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    .drop-zone {
+      border: 2px dashed rgba(59, 130, 246, 0.35);
+      border-radius: 22px;
+      background: var(--card);
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: var(--blue);
+      background: rgba(59, 130, 246, 0.06);
+    }
+
+    .drop-zone img#preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
+
+    .drop-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .drop-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1.1rem;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--blue), #1d4ed8);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 8px 30px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.07);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 14px;
+      padding: 1rem 1.4rem;
+      color: #f87171;
+      font-size: 0.9rem;
+      text-align: center;
+      display: none;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding-top: 0.5rem;
+    }
+
+    .result-header {
+      background: var(--card);
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 20px;
+      padding: 1.5rem 1.8rem;
+      display: none;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .face-info {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .info-chip {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 100px;
+      padding: 0.35rem 1rem;
+      font-size: 0.88rem;
+      color: var(--blue-light);
+    }
+
+    .face-shape-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+
+    .face-shape-desc {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      display: none;
+    }
+
+    .hairstyle-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .hairstyle-card {
+      background: var(--card);
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 18px;
+      overflow: hidden;
+      display: none;
+      animation: fadeUp 0.4s ease both;
+      flex-direction: row;
+    }
+
+    .hairstyle-card img {
+      width: 130px;
+      height: 130px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .hairstyle-info {
+      padding: 1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .hairstyle-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .hairstyle-desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .hairstyle-badge {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 100px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.75rem;
+      color: var(--blue-light);
+      width: fit-content;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 2rem;
+        gap: 2rem;
+      }
+
+      .left-panel {
+        position: static;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <!-- LEFT -->
+    <div class="left-panel">
+      <div class="badge">Powered by DeepFace AI</div>
+      <h1 class="title">Hair Style<br><span>Recommender</span></h1>
+      <p class="desc">얼굴 사진을 업로드하면 AI가 얼굴형을 분석하고 가장 잘 어울리는 헤어스타일을 추천해드립니다.</p>
+
+      <div class="drop-zone" id="dropZone">
+        <img id="preview" alt="preview">
+        <div class="drop-placeholder" id="placeholder">
+          <div class="drop-icon">🖼️</div>
+          <span style="font-size:1rem; color:var(--text)">Click or drag & drop</span>
+          <span style="font-size:0.82rem; opacity:0.55">JPG, PNG, WEBP</span>
+        </div>
+      </div>
+
+      <input type="file" id="fileInput" accept="image/*">
+      <div class="error" id="errorBox"></div>
+
+      <button class="btn" id="predictBtn" disabled>
+        <span id="btnText">얼굴형 분석 & 헤어스타일 추천</span>
+        <div class="spinner" id="spinner"></div>
+      </button>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+      <div class="result-header" id="resultHeader">
+        <div class="face-info">
+          <span class="info-chip" id="chipAge">—</span>
+          <span class="info-chip" id="chipGender">—</span>
+        </div>
+        <div class="face-shape-label" id="faceShapeLabel">—</div>
+        <div class="face-shape-desc" id="faceShapeDesc">—</div>
+      </div>
+
+      <div class="section-title" id="sectionTitle">✂️ 추천 헤어스타일</div>
+
+      <div class="hairstyle-grid" id="hairstyleGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const placeholder = document.getElementById('placeholder');
+    const predictBtn = document.getElementById('predictBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+    const errorBox = document.getElementById('errorBox');
+    const resultHeader = document.getElementById('resultHeader');
+    const sectionTitle = document.getElementById('sectionTitle');
+    const hairstyleGrid = document.getElementById('hairstyleGrid');
+
+    let selectedFile = null;
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) setFile(file);
+    });
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+    function setFile(file) {
+      selectedFile = file;
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+      predictBtn.disabled = false;
+      errorBox.style.display = 'none';
+      resultHeader.style.display = 'none';
+      sectionTitle.style.display = 'none';
+      hairstyleGrid.innerHTML = '';
+    }
+
+    predictBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      btnText.style.display = 'none';
+      spinner.style.display = 'block';
+      predictBtn.disabled = true;
+      errorBox.style.display = 'none';
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        const res = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || 'Failed');
+
+        document.getElementById('chipAge').textContent = `${data.predicted_age}세`;
+        document.getElementById('chipGender').textContent = data.predicted_gender === 'Man' ? '👨 남성' : '👩 여성';
+        document.getElementById('faceShapeLabel').textContent = data.face_shape_description;
+        document.getElementById('faceShapeDesc').textContent = `추천 스타일 ${data.recommendations.length}가지를 준비했어요`;
+
+        resultHeader.style.display = 'block';
+        sectionTitle.style.display = 'block';
+        hairstyleGrid.innerHTML = '';
+
+        data.recommendations.forEach((item, i) => {
+          const card = document.createElement('div');
+          card.className = 'hairstyle-card';
+          card.style.animationDelay = `${i * 0.1}s`;
+          card.style.display = 'flex';
+          card.innerHTML = `
+          <img src="${item.image_url}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/130x130?text=Hair'">
+          <div class="hairstyle-info">
+            <span class="hairstyle-badge">추천 ${i + 1}</span>
+            <div class="hairstyle-name">${item.name}</div>
+            <div class="hairstyle-desc">${item.description}</div>
+          </div>
+        `;
+          hairstyleGrid.appendChild(card);
+        });
+
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = 'block';
+      } finally {
+        btnText.style.display = 'block';
+        spinner.style.display = 'none';
+        predictBtn.disabled = false;
+      }
+    });
+  </script>
 </body>
+
 </html>
